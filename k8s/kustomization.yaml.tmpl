@@ -1,0 +1,31 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- payout-cron.yaml
+- polkadot-panic-alerter.yaml
+- polkadot-node.yaml
+
+imageTags:
+  - name: polkadot-node
+    newName: gcr.io/${project}/polkadot-node
+    newTag: latest
+  - name: polkadot-archive-downloader
+    newName: gcr.io/${project}/polkadot-archive-downloader
+    newTag: latest
+  - name: polkadot-node-key-configurator
+    newName: gcr.io/${project}/polkadot-node-key-configurator
+    newTag: latest
+  - name: payout-cron
+    newName: gcr.io/${project}/payout-cron
+    newTag: latest
+
+configMapGenerator:
+- name: polkadot-configmap
+  literals:
+      - ARCHIVE_URL="${polkadot_archive_url}"
+      - CHAIN="${chain}"
+- name: polkadot-payout-cron
+  literals:
+      - PAYOUT_ACCOUNT_ADDRESS="${payout_account_address}"
+      - STASH_ACCOUNT_ADDRESS="${polkadot_stash_account_address}"

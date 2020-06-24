@@ -1,0 +1,124 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: polkadot-node-rpc
+spec:
+  ports:
+  - port: 9933
+  selector:
+    app: polkadot-node
+  clusterIP: None
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: polkadot-node
+spec:
+  ports:
+  - port: 30333
+  selector:
+    app: polkadot-node
+  clusterIP: None
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: polkadot-node-policy
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: polkadot-node
+  policyTypes:
+  - Ingress
+  - Egress
+  egress:
+  - ports:
+    - port: 53
+      protocol: TCP
+    - port: 53
+      protocol: UDP
+    - port: 443
+      protocol: TCP
+    - port: 9615
+      protocol: TCP
+    - port: 30333
+      protocol: TCP
+    - port: 30334
+      protocol: TCP
+    - port: 30100
+      protocol: TCP
+  ingress:
+  - ports:
+    - port: 30333
+      protocol: TCP
+  - ports:
+    - port: 9944
+      protocol: TCP
+    from:
+    - podSelector:
+        matchLabels:
+          app: polkadot-panic-alerter
+  - ports:
+    - port: 9944
+      protocol: TCP
+    from:
+    - podSelector:
+        matchLabels:
+          app: polkadot-payout-cron
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: polkadot-node
+spec:
+  selector:
+    matchLabels:
+      app: polkadot-node
+  serviceName: polkadot-node
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: polkadot-node
+    spec:
+      securityContext:
+        fsGroup: 1000
+      containers:
+      - name: polkadot-node
+        image: polkadot-node
+        ports:
+        - containerPort: 9933
+          name: dot-rpc-port
+        - containerPort: 30333
+          name: dot-p2p-port
+        volumeMounts:
+        - name: polkadot-node-pv-claim
+          mountPath: /polkadot
+        envFrom:
+        - configMapRef:
+            name: polkadot-configmap
+        resources:
+          limits:
+            cpu: 0
+      initContainers:
+      - name: polkadot-archive-downloader
+        image: polkadot-archive-downloader
+        volumeMounts:
+        - name: polkadot-node-pv-claim
+          mountPath: /polkadot
+        env:
+        - name: ARCHIVE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: polkadot-configmap
+              key: ARCHIVE_URL
+  volumeClaimTemplates:
+  - metadata:
+      name: polkadot-node-pv-claim
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: local-ssd
+      resources:
+        requests:
+          storage: 50Gi
