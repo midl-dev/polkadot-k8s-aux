@@ -1,7 +1,7 @@
 module "terraform-gke-blockchain" {
   source = "./empty_module"
   project = var.project
-  kubernetes_endoint = var.kubernetes_endpoint
+  kubernetes_endpoint = var.kubernetes_endpoint
   cluster_ca_certificate = var.cluster_ca_certificate
   kubernetes_access_token = var.kubernetes_access_token
 }

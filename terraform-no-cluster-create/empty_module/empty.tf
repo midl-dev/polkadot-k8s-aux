@@ -7,6 +7,18 @@ variable "project" {
   default = ""
 }
 
+variable "kubernetes_endpoint" {
+  type = "string"
+}
+
+variable "cluster_ca_certificate" {
+  type = "string"
+}
+
+variable "kubernetes_access_token" {
+  type = "string"
+}
+
 output "name" {
   value = ""
 }
