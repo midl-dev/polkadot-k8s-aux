@@ -12,11 +12,15 @@ output "name" {
 }
 
 output "kubernetes_endpoint" {
-  value = ""
+  value = var.kubernetes_endpoint
 }
 
 output "cluster_ca_certificate" {
-  value = ""
+  value = var.cluster_ca_certificate
+}
+
+output "kubernetes_access_token" {
+  value = var.kubernetes_access_token
 }
 
 output "location" {

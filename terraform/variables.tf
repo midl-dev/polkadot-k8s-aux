@@ -54,9 +54,21 @@ variable "billing_account" {
   default = ""
 }
 
-variable "kubernetes_config_context" {
+variable "kubernetes_endpoint" {
   type = string
-  description = "name of the kubernetes context where to create the deployment. Only set when you already have an existing cluster"
+  description = "name of the kubernetes endpoint"
+  default = ""
+}
+
+variable "cluster_ca_certificate" {
+  type = string
+  description = "kubernetes cluster certificate"
+  default = ""
+}
+
+variable "kubernetes_access_token" {
+  type = string
+  description = "name of the kubernetes endpoint"
   default = ""
 }
 
