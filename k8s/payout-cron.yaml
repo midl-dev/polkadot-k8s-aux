@@ -32,6 +32,11 @@ spec:
                 configMapKeyRef:
                   name: polkadot-payout-cron
                   key: STASH_ACCOUNT_ADDRESS
+            - name: NODE_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: polkadot-payout-cron
+                  key: NODE_ENDPOINT
             resources:
               limits:
                 cpu: 0

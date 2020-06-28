@@ -45,17 +45,3 @@ spec:
           emptyDir: {}
         - name: polkadot-panic-alerter-logs-general
           emptyDir: {}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: polkadot-api-server-config
-  namespace: default
-data:
-  user_config_main.ini: |
-    [api_server]
-    port = 3000
-  user_config_nodes.ini: |
-    [node_1]
-    node_name = polkadot_node
-    ws_url = ws://polkadot-node-0.polkadot-node:9944

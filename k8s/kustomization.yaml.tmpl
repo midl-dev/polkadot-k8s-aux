@@ -6,19 +6,28 @@ resources:
 - polkadot-panic-alerter.yaml
 - polkadot-node.yaml
 
+# Adds namespace to all resources.
+namespace: ${kubernetes_namespace}
+
+
+# Value of this field is prepended to the
+# names of all resources, e.g. a deployment named
+# "wordpress" becomes "alices-wordpress".
+namePrefix: ${kubernetes_name_prefix}-
+
 imageTags:
   - name: polkadot-node
     newName: gcr.io/${project}/polkadot-node
-    newTag: latest
+    newTag: ${kubernetes_namespace}-latest
   - name: polkadot-archive-downloader
     newName: gcr.io/${project}/polkadot-archive-downloader
-    newTag: latest
+    newTag: ${kubernetes_namespace}-latest
   - name: polkadot-node-key-configurator
     newName: gcr.io/${project}/polkadot-node-key-configurator
-    newTag: latest
+    newTag: ${kubernetes_namespace}-latest
   - name: payout-cron
     newName: gcr.io/${project}/payout-cron
-    newTag: latest
+    newTag: ${kubernetes_namespace}-latest
 
 configMapGenerator:
 - name: polkadot-configmap
@@ -29,3 +38,4 @@ configMapGenerator:
   literals:
       - PAYOUT_ACCOUNT_ADDRESS="${payout_account_address}"
       - STASH_ACCOUNT_ADDRESS="${polkadot_stash_account_address}"
+      - NODE_ENDPOINT="polkadot-node-0.polkadot-node.${kubernetes_namespace}"

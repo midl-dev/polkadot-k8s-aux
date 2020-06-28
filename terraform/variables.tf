@@ -48,10 +48,28 @@ variable "org_id" {
   default = ""
 }
 
+variable "region" {
+  type        = string
+  description = "GCP Region. Only necessary when creating cluster manually"
+  default = ""
+}
+
 variable "billing_account" {
   type        = string
   description = "Billing account ID."
   default = ""
+}
+
+variable "kubernetes_namespace" {
+  type = string
+  description = "kubernetes namespace to deploy the resource into"
+  default = "polkadot"
+}
+
+variable "kubernetes_name_prefix" {
+  type = string
+  description = "kubernetes name prefix to prepend to all resources (should be short, like DOT)"
+  default = "DOT"
 }
 
 variable "kubernetes_endpoint" {
@@ -63,6 +81,12 @@ variable "kubernetes_endpoint" {
 variable "cluster_ca_certificate" {
   type = string
   description = "kubernetes cluster certificate"
+  default = ""
+}
+
+variable "cluster_name" {
+  type = string
+  description = "name of the kubernetes cluster"
   default = ""
 }
 

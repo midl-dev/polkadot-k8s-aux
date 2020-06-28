@@ -7,6 +7,10 @@ variable "project" {
   default = ""
 }
 
+variable "region" {
+  type = "string"
+}
+
 variable "kubernetes_endpoint" {
   type = "string"
 }
@@ -19,8 +23,12 @@ variable "kubernetes_access_token" {
   type = "string"
 }
 
+variable "cluster_name" {
+  type = "string"
+}
+
 output "name" {
-  value = ""
+  value = var.cluster_name
 }
 
 output "kubernetes_endpoint" {
@@ -36,7 +44,7 @@ output "kubernetes_access_token" {
 }
 
 output "location" {
-  value = ""
+  value = var.region
 }
 
 output "project" {

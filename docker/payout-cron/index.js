@@ -17,7 +17,7 @@ const { ApiPromise, WsProvider } = require('@polkadot/api');
 const { Keyring } = require('@polkadot/keyring');
 
 async function main () {
-  const provider = new WsProvider('ws://polkadot-sentry-node-0.polkadot-sentry-node:9944');
+  const provider = new WsProvider(`ws://${process.env.NODE_ENDPOINT}:9944`);
   // Create our API
   const api = await ApiPromise.create({ provider });
 
