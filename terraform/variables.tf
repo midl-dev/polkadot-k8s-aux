@@ -69,7 +69,7 @@ variable "kubernetes_namespace" {
 variable "kubernetes_name_prefix" {
   type = string
   description = "kubernetes name prefix to prepend to all resources (should be short, like DOT)"
-  default = "DOT"
+  default = "dot"
 }
 
 variable "kubernetes_endpoint" {

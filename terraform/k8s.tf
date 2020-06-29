@@ -48,7 +48,7 @@ resource "kubernetes_secret" "polkadot_panic_alerter_config_vol" {
     "internal_config_alerts.ini" = "${file("${path.module}/../k8s/polkadot-panic-alerter-configs-template/internal_config_alerts.ini")}"
     "internal_config_main.ini" = "${file("${path.module}/../k8s/polkadot-panic-alerter-configs-template/internal_config_main.ini")}"
     "user_config_main.ini" = "${templatefile("${path.module}/../k8s/polkadot-panic-alerter-configs-template/user_config_main.ini", { "telegram_alert_chat_id" : var.telegram_alert_chat_id, "telegram_alert_chat_token": var.telegram_alert_chat_token } )}"
-    "user_config_nodes.ini" = "${templatefile("${path.module}/../k8s/polkadot-panic-alerter-configs-template/user_config_nodes.ini", {"polkadot_stash_account_address": var.polkadot_stash_account_address, "kubernetes_namespace": var.kubernetes_namespace, "panic_network": local.panic_network})}"
+    "user_config_nodes.ini" = "${templatefile("${path.module}/../k8s/polkadot-panic-alerter-configs-template/user_config_nodes.ini", {"polkadot_stash_account_address": var.polkadot_stash_account_address, "kubernetes_name_prefix": var.kubernetes_name_prefix, "panic_network": local.panic_network})}"
     "user_config_repos.ini" = "${file("${path.module}/../k8s/polkadot-panic-alerter-configs-template/user_config_repos.ini")}"
   }
   depends_on = [ null_resource.push_containers, kubernetes_namespace.polkadot_namespace ]
@@ -61,7 +61,7 @@ resource "kubernetes_config_map" "polkadot_api_server_config_vol" {
   }
   data = {
     "user_config_main.ini" = "${file("${path.module}/../k8s/polkadot-api-server-configs-template/user_config_main.ini")}"
-    "user_config_main.ini" = "${templatefile("${path.module}/../k8s/polkadot-api-server-configs-template/user_config_nodes.ini", { "kubernetes_namespace" : var.kubernetes_namespace } )}"
+    "user_config_nodes.ini" = "${templatefile("${path.module}/../k8s/polkadot-api-server-configs-template/user_config_nodes.ini", { "kubernetes_name_prefix" : var.kubernetes_name_prefix } )}"
   }
   depends_on = [ null_resource.push_containers, kubernetes_namespace.polkadot_namespace ]
 }
@@ -77,17 +77,17 @@ resource "kubernetes_secret" "polkadot_payout_account_mnemonic" {
   depends_on = [ null_resource.push_containers, kubernetes_namespace.polkadot_namespace ]
 }
 
-resource "local_file" "k8s_kustomization" {
-  content = templatefile("${path.module}/../k8s/kustomization.yaml.tmpl",
-     { "project" : module.terraform-gke-blockchain.project,
-       "polkadot_archive_url": var.polkadot_archive_url,
-       "polkadot_version": var.polkadot_version,
-       "chain": var.chain,
-       "payout_account_address": var.payout_account_address,
-       "kubernetes_namespace": var.kubernetes_namespace,
-       "kubernetes_name_prefix": var.kubernetes_name_prefix,
-       "polkadot_stash_account_address": var.polkadot_stash_account_address})
-  filename = "${path.module}/../k8s/kustomization.yaml"
+# FIXME this is a bug in kustomize where it will not prepend characters to the storageClass requirement
+# to address it, we define it here. At some point, later, it will stop being needed.
+resource "kubernetes_storage_class" "local-ssd" {
+  count = var.kubernetes_name_prefix == "dot" ? 1  : 0
+  metadata {
+    name = "local-ssd"
+  }
+  storage_provisioner = "kubernetes.io/gce-pd"
+  parameters = {
+    type = "pd-ssd"
+  }
 }
 
 resource "null_resource" "apply" {
@@ -98,12 +98,25 @@ set -e
 set -x
 gcloud container clusters get-credentials "${module.terraform-gke-blockchain.name}" --region="${module.terraform-gke-blockchain.location}" --project="${module.terraform-gke-blockchain.project}"
 
-cd ${path.module}/../k8s
+mkdir -p ${path.module}/k8s-${var.kubernetes_namespace}
+cp -v ${path.module}/../k8s/*yaml* ${path.module}/k8s-${var.kubernetes_namespace}
+pushd ${path.module}/k8s-${var.kubernetes_namespace}
+cat <<EOK > kustomization.yaml
+${templatefile("${path.module}/../k8s/kustomization.yaml.tmpl",
+     { "project" : module.terraform-gke-blockchain.project,
+       "polkadot_archive_url": var.polkadot_archive_url,
+       "polkadot_version": var.polkadot_version,
+       "chain": var.chain,
+       "payout_account_address": var.payout_account_address,
+       "kubernetes_namespace": var.kubernetes_namespace,
+       "kubernetes_name_prefix": var.kubernetes_name_prefix,
+       "polkadot_stash_account_address": var.polkadot_stash_account_address})}
+EOK
 kubectl apply -k .
-rm -rvf kustomization.yaml
-rm -rvf namespace.yaml
+popd
+rm -rvf ${path.module}/k8s-${var.kubernetes_namespace}
 EOF
 
   }
-  depends_on = [ null_resource.push_containers, local_file.k8s_kustomization, kubernetes_namespace.polkadot_namespace ]
+  depends_on = [ null_resource.push_containers, kubernetes_namespace.polkadot_namespace ]
 }

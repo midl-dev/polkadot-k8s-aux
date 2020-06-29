@@ -38,4 +38,4 @@ configMapGenerator:
   literals:
       - PAYOUT_ACCOUNT_ADDRESS="${payout_account_address}"
       - STASH_ACCOUNT_ADDRESS="${polkadot_stash_account_address}"
-      - NODE_ENDPOINT="polkadot-node-0.polkadot-node.${kubernetes_namespace}"
+      - NODE_ENDPOINT="${kubernetes_name_prefix}-polkadot-node-0.${kubernetes_name_prefix}-polkadot-node"

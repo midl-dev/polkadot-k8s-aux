@@ -37,7 +37,7 @@ spec:
       volumes:
         - name: polkadot-api-server-config-vol
           configMap:
-            name: polkadot-api-server-config
+            name: polkadot-api-server-config-vol
         - name: polkadot-panic-alerter-config-vol
           secret:
             secretName: polkadot-panic-alerter-config-vol
