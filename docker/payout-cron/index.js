@@ -31,11 +31,13 @@ async function main () {
     api.query.staking.currentEra()
   ]);
 
+
   const controller_address = await api.query.staking.bonded(process.env.STASH_ACCOUNT_ADDRESS);
   const controller_ledger = await api.query.staking.ledger(controller_address.toString());
-  claimed_rewards = controller_ledger._raw.claimedRewards;
+  claimed_eras = controller_ledger.toHuman().claimedRewards.map(x => parseInt(x.replace(',','')));
+  console.log(`Payout for validator stash ${process.env.STASH_ACCOUNT_ADDRESS} has been claimed for eras: ${claimed_eras}`);
 
-  if (claimed_rewards.includes(currentEra - 1)) {
+  if (claimed_eras.includes(currentEra - 1)) {
     console.log(`Payout for validator stash ${process.env.STASH_ACCOUNT_ADDRESS} for era ${currentEra - 1} has already been issued, exiting`);
     process.exit(0);
   }

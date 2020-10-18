@@ -12,4 +12,4 @@ RUN npm install && npm cache clean --force --loglevel=error
 
 COPY --chown=node:node index.js .
 
-CMD [ "node", "index.js"]
+CMD [ "node", "--unhandled-rejections=strict", "index.js" ]

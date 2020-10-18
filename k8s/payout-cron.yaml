@@ -40,4 +40,5 @@ spec:
             resources:
               limits:
                 cpu: 0
+            imagePullPolicy: Always
           restartPolicy: OnFailure
