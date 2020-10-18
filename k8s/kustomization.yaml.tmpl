@@ -37,7 +37,7 @@ configMapGenerator:
 - name: polkadot-payout-cron
   literals:
       - PAYOUT_ACCOUNT_ADDRESS="${payout_account_address}"
-      - STASH_ACCOUNT_ADDRESS="${polkadot_stash_account_addresses[0]}"
+      - STASH_ACCOUNT_ADDRESS="${join(",",polkadot_stash_account_addresses)}"
       - NODE_ENDPOINT="${kubernetes_name_prefix}-polkadot-node-0.${kubernetes_name_prefix}-polkadot-node"
 
 patchesStrategicMerge:
