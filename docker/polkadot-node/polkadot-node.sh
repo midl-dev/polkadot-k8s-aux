@@ -12,5 +12,6 @@ eval /usr/local/bin/polkadot --wasm-execution Compiled \
          --unsafe-rpc-external \
          --rpc-methods=Unsafe \
          --rpc-cors=all \
-         --pruning=archive \
+         --unsafe-pruning \
+         --pruning=1000 \
          $chain_param

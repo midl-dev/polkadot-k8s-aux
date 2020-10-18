@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: polkadot-api-server
-        image: simplyvc/polkadot_api_server:1.18.1
+        image: simplyvc/polkadot_api_server:1.25.1
         volumeMounts:
         - name: polkadot-api-server-config-vol
           mountPath: /opt/polkadot_api_server/config
@@ -23,7 +23,9 @@ spec:
           limits:
             cpu: 0
       - name: panic-alerter
-        image: simplyvc/panic_polkadot:2.0.1
+        image: simplyvc/panic_polkadot:2.1.2
+        # otherwise it throws an error saying that it could not connect to api server but continuing anyway
+        command: [ "bash", "-c", "sleep 60 && pipenv run python run_alerter.py" ]
         resources:
           limits:
             cpu: 0

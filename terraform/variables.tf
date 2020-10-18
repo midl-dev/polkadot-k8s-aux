@@ -102,6 +102,12 @@ variable "terraform_service_account_credentials" {
   default = "~/.config/gcloud/application_default_credentials.json"
 }
 
+variable "kubernetes_pool_name" {
+  type = string
+  description = "when kubernetes cluster has several node pools, specify which ones to deploy the baking setup into. only effective when deploying on an external cluster with terraform_no_cluster_create"
+  default = "blockchain-pool"
+}
+
 variable "telegram_alert_chat_id" {
   type = string
   description = "chat id for polkadot panic alerter"
@@ -112,7 +118,13 @@ variable "telegram_alert_chat_token" {
   description = "the secret token for telegram panic alerter"
 }
 
-variable "polkadot_stash_account_address" {
-  type = string
-  description = "the stash address"
+variable "polkadot_stash_account_addresses" {
+  type = list
+  description = "the list of stash address to monitor with panic"
+}
+
+variable "node_locations" {
+  type        = list
+  default     = [ "us-central1-b", "us-central1-f" ]
+  description = "Zones in which to create the nodes"
 }

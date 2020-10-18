@@ -1,5 +1,5 @@
 locals {
-  panic_network = var.chain == "polkadot" ? "Polkadot CC1" : "Kusama CC3"
+  panic_network = var.chain == "polkadot" ? "Polkadot" : "Kusama"
 }
 resource "null_resource" "push_containers" {
 
@@ -48,7 +48,8 @@ resource "kubernetes_secret" "polkadot_panic_alerter_config_vol" {
     "internal_config_alerts.ini" = "${file("${path.module}/../k8s/polkadot-panic-alerter-configs-template/internal_config_alerts.ini")}"
     "internal_config_main.ini" = "${file("${path.module}/../k8s/polkadot-panic-alerter-configs-template/internal_config_main.ini")}"
     "user_config_main.ini" = "${templatefile("${path.module}/../k8s/polkadot-panic-alerter-configs-template/user_config_main.ini", { "telegram_alert_chat_id" : var.telegram_alert_chat_id, "telegram_alert_chat_token": var.telegram_alert_chat_token } )}"
-    "user_config_nodes.ini" = "${templatefile("${path.module}/../k8s/polkadot-panic-alerter-configs-template/user_config_nodes.ini", {"polkadot_stash_account_address": var.polkadot_stash_account_address, "kubernetes_name_prefix": var.kubernetes_name_prefix, "panic_network": local.panic_network})}"
+    "user_config_nodes.ini" = "${templatefile("${path.module}/../k8s/polkadot-panic-alerter-configs-template/user_config_nodes.ini", {"polkadot_stash_account_addresses": var.polkadot_stash_account_addresses, "kubernetes_name_prefix": var.kubernetes_name_prefix, "panic_network": local.panic_network})}"
+    "user_config_ui.ini" = "${file("${path.module}/../k8s/polkadot-panic-alerter-configs-template/user_config_ui.ini")}"
     "user_config_repos.ini" = "${file("${path.module}/../k8s/polkadot-panic-alerter-configs-template/user_config_repos.ini")}"
   }
   depends_on = [ null_resource.push_containers, kubernetes_namespace.polkadot_namespace ]
@@ -110,8 +111,20 @@ ${templatefile("${path.module}/../k8s/kustomization.yaml.tmpl",
        "payout_account_address": var.payout_account_address,
        "kubernetes_namespace": var.kubernetes_namespace,
        "kubernetes_name_prefix": var.kubernetes_name_prefix,
-       "polkadot_stash_account_address": var.polkadot_stash_account_address})}
+       "polkadot_stash_account_addresses": var.polkadot_stash_account_addresses})}
 EOK
+cat <<EOP > payout-cron-patch.yaml
+${templatefile("${path.module}/../k8s/payout-cron-patch.yaml.tmpl",
+     { "kubernetes_pool_name" : var.kubernetes_pool_name })}
+EOP
+cat <<EOP > polkadot-node-patch.yaml
+${templatefile("${path.module}/../k8s/polkadot-node-patch.yaml.tmpl",
+     { "kubernetes_pool_name" : var.kubernetes_pool_name })}
+EOP
+cat <<EOP > polkadot-panic-alerter-patch.yaml
+${templatefile("${path.module}/../k8s/polkadot-panic-alerter-patch.yaml.tmpl",
+     { "kubernetes_pool_name" : var.kubernetes_pool_name })}
+EOP
 kubectl apply -k .
 popd
 rm -rvf ${path.module}/k8s-${var.kubernetes_namespace}
