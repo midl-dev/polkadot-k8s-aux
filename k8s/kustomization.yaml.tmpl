@@ -3,7 +3,7 @@ kind: Kustomization
 
 resources:
 - payout-cron.yaml
-- polkadot-panic-alerter.yaml
+- validator-monitor.yaml
 - polkadot-node.yaml
 
 # Adds namespace to all resources.
@@ -25,6 +25,9 @@ imageTags:
   - name: polkadot-node-key-configurator
     newName: gcr.io/${project}/polkadot-node-key-configurator
     newTag: ${kubernetes_namespace}-latest
+  - name: validator-monitor
+    newName: gcr.io/${project}/validator-monitor
+    newTag: ${kubernetes_namespace}-latest
   - name: payout-cron
     newName: gcr.io/${project}/payout-cron
     newTag: ${kubernetes_namespace}-latest
@@ -42,5 +45,5 @@ configMapGenerator:
 
 patchesStrategicMerge:
 - payout-cron-patch.yaml
-- polkadot-panic-alerter-patch.yaml
+- validator-monitor-patch.yaml
 - polkadot-node-patch.yaml

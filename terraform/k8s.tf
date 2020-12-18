@@ -45,12 +45,12 @@ resource "kubernetes_secret" "polkadot_panic_alerter_config_vol" {
     namespace = var.kubernetes_namespace
   }
   data = {
-    "internal_config_alerts.ini" = "${file("${path.module}/../k8s/polkadot-panic-alerter-configs-template/internal_config_alerts.ini")}"
-    "internal_config_main.ini" = "${file("${path.module}/../k8s/polkadot-panic-alerter-configs-template/internal_config_main.ini")}"
-    "user_config_main.ini" = "${templatefile("${path.module}/../k8s/polkadot-panic-alerter-configs-template/user_config_main.ini", { "telegram_alert_chat_id" : var.telegram_alert_chat_id, "telegram_alert_chat_token": var.telegram_alert_chat_token } )}"
-    "user_config_nodes.ini" = "${templatefile("${path.module}/../k8s/polkadot-panic-alerter-configs-template/user_config_nodes.ini", {"polkadot_stash_account_addresses": var.polkadot_stash_account_addresses, "kubernetes_name_prefix": var.kubernetes_name_prefix, "panic_network": local.panic_network})}"
-    "user_config_ui.ini" = "${file("${path.module}/../k8s/polkadot-panic-alerter-configs-template/user_config_ui.ini")}"
-    "user_config_repos.ini" = "${file("${path.module}/../k8s/polkadot-panic-alerter-configs-template/user_config_repos.ini")}"
+    "internal_config_alerts.ini" = file("${path.module}/../k8s/polkadot-panic-alerter-configs-template/internal_config_alerts.ini")
+    "internal_config_main.ini" = file("${path.module}/../k8s/polkadot-panic-alerter-configs-template/internal_config_main.ini")
+    "user_config_main.ini" = templatefile("${path.module}/../k8s/polkadot-panic-alerter-configs-template/user_config_main.ini", { "telegram_alert_chat_id" : var.telegram_alert_chat_id, "telegram_alert_chat_token": var.telegram_alert_chat_token } )
+    "user_config_nodes.ini" = templatefile("${path.module}/../k8s/polkadot-panic-alerter-configs-template/user_config_nodes.ini", {"polkadot_stash_account_addresses": var.polkadot_stash_account_addresses, "kubernetes_name_prefix": var.kubernetes_name_prefix, "panic_network": local.panic_network})
+    "user_config_ui.ini" = file("${path.module}/../k8s/polkadot-panic-alerter-configs-template/user_config_ui.ini")
+    "user_config_repos.ini" = file("${path.module}/../k8s/polkadot-panic-alerter-configs-template/user_config_repos.ini")
   }
   depends_on = [ null_resource.push_containers, kubernetes_namespace.polkadot_namespace ]
 }
@@ -61,8 +61,8 @@ resource "kubernetes_config_map" "polkadot_api_server_config_vol" {
     namespace = var.kubernetes_namespace
   }
   data = {
-    "user_config_main.ini" = "${file("${path.module}/../k8s/polkadot-api-server-configs-template/user_config_main.ini")}"
-    "user_config_nodes.ini" = "${templatefile("${path.module}/../k8s/polkadot-api-server-configs-template/user_config_nodes.ini", { "kubernetes_name_prefix" : var.kubernetes_name_prefix } )}"
+    "user_config_main.ini" = file("${path.module}/../k8s/polkadot-api-server-configs-template/user_config_main.ini")
+    "user_config_nodes.ini" = templatefile("${path.module}/../k8s/polkadot-api-server-configs-template/user_config_nodes.ini", { "kubernetes_name_prefix" : var.kubernetes_name_prefix } )
   }
   depends_on = [ null_resource.push_containers, kubernetes_namespace.polkadot_namespace ]
 }
@@ -121,8 +121,8 @@ cat <<EOP > polkadot-node-patch.yaml
 ${templatefile("${path.module}/../k8s/polkadot-node-patch.yaml.tmpl",
      { "kubernetes_pool_name" : var.kubernetes_pool_name })}
 EOP
-cat <<EOP > polkadot-panic-alerter-patch.yaml
-${templatefile("${path.module}/../k8s/polkadot-panic-alerter-patch.yaml.tmpl",
+cat <<EOP > validator-monitor-patch.yaml
+${templatefile("${path.module}/../k8s/validator-monitor-patch.yaml.tmpl",
      { "kubernetes_pool_name" : var.kubernetes_pool_name })}
 EOP
 kubectl apply -k .

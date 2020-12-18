@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: polkadot-validator-monitor
+  labels:
+    app: validator-monitor
+spec:
+  selector:
+    matchLabels:
+      app: validator-monitor
+  template:
+    metadata:
+      labels:
+        app: validator-monitor
+    spec:
+      containers:
+      - name: validator-monitor
+        image: validator-monitor
+        env:
+        - name: PAYOUT_ACCOUNT_MNEMONIC
+          valueFrom:
+            secretKeyRef:
+              name: polkadot-payout-account-mnemonic
+              key: payout-account-mnemonic
+        - name: PAYOUT_ACCOUNT_ADDRESS
+          valueFrom:
+            configMapKeyRef:
+              name: polkadot-payout-cron
+              key: PAYOUT_ACCOUNT_ADDRESS
+        - name: STASH_ACCOUNT_ADDRESS
+          valueFrom:
+            configMapKeyRef:
+              name: polkadot-payout-cron
+              key: STASH_ACCOUNT_ADDRESS
+        - name: NODE_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: polkadot-payout-cron
+              key: NODE_ENDPOINT
+        resources:
+          limits:
+            cpu: 0
+        imagePullPolicy: Always
+      restartPolicy: Always
