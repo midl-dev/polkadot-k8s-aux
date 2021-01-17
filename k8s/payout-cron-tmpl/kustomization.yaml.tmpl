@@ -1,0 +1,18 @@
+bases:
+  - ./../payout-cron-base
+
+nameSuffix: -${validator.name}
+
+imageTags:
+  - name: payout-cron
+    newName: gcr.io/${project}/payout-cron
+    newTag: ${kubernetes_namespace}-latest
+
+configMapGenerator:
+- name: polkadot-payout-cron
+  literals:
+      - STASH_ACCOUNT_ADDRESS="${validator.stash_account_address}"
+      - NODE_ENDPOINT="${kubernetes_name_prefix}-polkadot-node-0.${kubernetes_name_prefix}-polkadot-node"
+
+patchesStrategicMerge:
+- payout-cron-patch.yaml

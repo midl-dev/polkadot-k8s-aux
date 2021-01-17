@@ -7,7 +7,7 @@ if [ ! -z "$CHAIN" ]; then
     chain_param="--chain \"$CHAIN\""
 fi
 
-eval /usr/local/bin/polkadot --wasm-execution Compiled \
+eval /usr/bin/polkadot --wasm-execution Compiled \
          --unsafe-ws-external \
          --unsafe-rpc-external \
          --rpc-methods=Unsafe \

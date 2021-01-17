@@ -24,12 +24,6 @@ variable "polkadot_version" {
   description = "Version of the polkadot containers to use"
 }
 
-variable "payout_account_address" {
-  type = string
-  description = "Dust account to send payoutStakers extrinsics from"
-  default = ""
-}
-
 variable "payout_account_mnemonic" {
   type = string
   description = "The secret key for the payout accout mnemonic"
@@ -108,19 +102,9 @@ variable "kubernetes_pool_name" {
   default = "blockchain-pool"
 }
 
-variable "telegram_alert_chat_id" {
-  type = string
-  description = "chat id for polkadot panic alerter"
-}
-
-variable "telegram_alert_chat_token" {
-  type = string
-  description = "the secret token for telegram panic alerter"
-}
-
-variable "polkadot_stash_account_addresses" {
+variable "polkadot_validators" {
   type = list
-  description = "the list of stash address to monitor with panic"
+  description = "the list of stash address to monitor. must be maps of names, stash_addresses and payout_cron_schedule"
 }
 
 variable "node_locations" {

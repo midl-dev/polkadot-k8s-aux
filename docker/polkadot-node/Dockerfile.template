@@ -1,5 +1,5 @@
 FROM parity/polkadot:((polkadot_version))
 USER polkadot
-COPY polkadot-node.sh /
-ENTRYPOINT ["/polkadot-node.sh"]
+COPY entrypoint.sh /
+ENTRYPOINT ["/entrypoint.sh"]
 CMD []

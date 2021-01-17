@@ -1,0 +1,30 @@
+bases:
+  - ./../polkadot-node-base
+
+imageTags:
+  - name: polkadot-node
+    newName: gcr.io/${project}/polkadot-node
+    newTag: ${kubernetes_namespace}-latest
+  - name: polkadot-archive-downloader
+    newName: gcr.io/${project}/polkadot-archive-downloader
+    newTag: ${kubernetes_namespace}-latest
+  - name: polkadot-node-key-configurator
+    newName: gcr.io/${project}/polkadot-node-key-configurator
+    newTag: ${kubernetes_namespace}-latest
+  - name: validator-monitor
+    newName: gcr.io/${project}/validator-monitor
+    newTag: ${kubernetes_namespace}-latest
+
+configMapGenerator:
+- name: polkadot-configmap
+  literals:
+      - ARCHIVE_URL="${polkadot_archive_url}"
+      - CHAIN="${chain}"
+      - NODE_ENDPOINT="${kubernetes_name_prefix}-polkadot-node-0.${kubernetes_name_prefix}-polkadot-node"
+- name: validator-monitor-configmap
+  literals:
+      - POLKADOT_VALIDATORS="${jsonencode(polkadot_validators)}"
+
+patchesStrategicMerge:
+- validator-monitor-patch.yaml
+- polkadot-node-patch.yaml

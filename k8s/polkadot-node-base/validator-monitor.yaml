@@ -16,26 +16,14 @@ spec:
       containers:
       - name: validator-monitor
         image: validator-monitor
+        envFrom:
+        - configMapRef:
+            name: validator-monitor-configmap
         env:
-        - name: PAYOUT_ACCOUNT_MNEMONIC
-          valueFrom:
-            secretKeyRef:
-              name: polkadot-payout-account-mnemonic
-              key: payout-account-mnemonic
-        - name: PAYOUT_ACCOUNT_ADDRESS
-          valueFrom:
-            configMapKeyRef:
-              name: polkadot-payout-cron
-              key: PAYOUT_ACCOUNT_ADDRESS
-        - name: STASH_ACCOUNT_ADDRESS
-          valueFrom:
-            configMapKeyRef:
-              name: polkadot-payout-cron
-              key: STASH_ACCOUNT_ADDRESS
         - name: NODE_ENDPOINT
           valueFrom:
             configMapKeyRef:
-              name: polkadot-payout-cron
+              name: polkadot-configmap
               key: NODE_ENDPOINT
         resources:
           limits:

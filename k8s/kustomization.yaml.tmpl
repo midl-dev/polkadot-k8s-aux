@@ -1,49 +1,17 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-resources:
-- payout-cron.yaml
-- validator-monitor.yaml
-- polkadot-node.yaml
+bases:
+- ./polkadot-node
+%{ for validator_name in polkadot_validators[*].name }
+- ./payout-cron-${validator_name}
+%{ endfor }
 
 # Adds namespace to all resources.
 namespace: ${kubernetes_namespace}
-
 
 # Value of this field is prepended to the
 # names of all resources, e.g. a deployment named
 # "wordpress" becomes "alices-wordpress".
 namePrefix: ${kubernetes_name_prefix}-
 
-imageTags:
-  - name: polkadot-node
-    newName: gcr.io/${project}/polkadot-node
-    newTag: ${kubernetes_namespace}-latest
-  - name: polkadot-archive-downloader
-    newName: gcr.io/${project}/polkadot-archive-downloader
-    newTag: ${kubernetes_namespace}-latest
-  - name: polkadot-node-key-configurator
-    newName: gcr.io/${project}/polkadot-node-key-configurator
-    newTag: ${kubernetes_namespace}-latest
-  - name: validator-monitor
-    newName: gcr.io/${project}/validator-monitor
-    newTag: ${kubernetes_namespace}-latest
-  - name: payout-cron
-    newName: gcr.io/${project}/payout-cron
-    newTag: ${kubernetes_namespace}-latest
-
-configMapGenerator:
-- name: polkadot-configmap
-  literals:
-      - ARCHIVE_URL="${polkadot_archive_url}"
-      - CHAIN="${chain}"
-- name: polkadot-payout-cron
-  literals:
-      - PAYOUT_ACCOUNT_ADDRESS="${payout_account_address}"
-      - STASH_ACCOUNT_ADDRESS="${join(",",polkadot_stash_account_addresses)}"
-      - NODE_ENDPOINT="${kubernetes_name_prefix}-polkadot-node-0.${kubernetes_name_prefix}-polkadot-node"
-
-patchesStrategicMerge:
-- payout-cron-patch.yaml
-- validator-monitor-patch.yaml
-- polkadot-node-patch.yaml

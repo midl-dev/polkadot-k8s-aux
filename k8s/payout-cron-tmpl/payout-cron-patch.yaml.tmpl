@@ -3,6 +3,7 @@ kind: CronJob
 metadata:
   name: polkadot-payout-cron
 spec:
+  schedule: ${validator.payout_cron_schedule}
   jobTemplate:
     spec:
       template:

@@ -1,0 +1,3 @@
+resources:
+- polkadot-node.yaml
+- validator-monitor.yaml

@@ -1,9 +1,0 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: polkadot-panic-alerter
-spec:
-  template:
-    spec:
-      nodeSelector:
-        cloud.google.com/gke-nodepool: ${kubernetes_pool_name}
