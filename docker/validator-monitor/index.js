@@ -7,6 +7,12 @@
 const { ApiPromise, WsProvider } = require('@polkadot/api');
 const { WebClient, WebAPICallResult } = require('@slack/web-api');
 
+// Describes your validators that you want to monitor.
+// This should be a json array of dictionaries
+// [ { "stash_account_address": "your address" },
+//   { "name": "a human readable name for your validator},
+//   { "slack_token": "slack api token"},
+//   { "slack_channel": "channel to send alerts to"} ]
 const polkadotValidators = JSON.parse(process.env.POLKADOT_VALIDATORS);
 
 
