@@ -19,9 +19,11 @@ async function main () {
   console.log(`It will monitor events related to the following validators: ${polkadotValidators.map(x => x['name'])}`);
   const validators = await api.query.session.validators();
 
+  var activeValidators = [];
   for (const validator of polkadotValidators) {
     if (validators.includes(validator["stash_account_address"])) {
       console.log(`${validator["name"]} is currently ACTIVE. The current process will alert if this changes.`);
+      activeValidators.push(validator["stash_account_address"]);
     } else {
       console.log(`${validator["name"]} is currently NOT ACTIVE. The current process will alert if this changes.`);
     }
@@ -39,14 +41,27 @@ async function main () {
         (async() => {
           var queuedKeys = await api.query.session.queuedKeys();
           var electedValidators = queuedKeys.map(x => x[0].toHuman());
-          //console.log(`Staking election has happened, elected validators are ${electedValidators}`);
           console.log(`Staking election has happened.`);
           for (const validator of polkadotValidators) {
             if (electedValidators.includes(validator["stash_account_address"])) {
-                var message = `${validator["name"]} is part of the next set of validators`;
+                if (!(activeValidators.includes(validator["stash_account_address"]))) {
+                  var message = `${validator["name"]} was added to the next set of validators 🎉🎉`;
+                  activeValidators.push(validator["stash_account_address"]);
+                  const slackWeb = new WebClient(validator["slack_token"]);
+                  const res = (await slackWeb.chat.postMessage({ text: message, channel: validator["slack_channel"] }));
+                } else {
+                  var message = `${validator["name"]} is still present in the next set of validators 🎉`;
+                }
                 console.log(message);
-                const slackWeb = new WebClient(validator["slack_token"]);
-                const res = (await slackWeb.chat.postMessage({ text: message, channel: validator["slack_channel"] }));
+            } else {
+                if (activeValidators.includes(validator["stash_account_address"])) {
+                  var message = `${validator["name"]} was removed from the next set of validators 💩💩`;
+                  const slackWeb = new WebClient(validator["slack_token"]);
+                  const res = (await slackWeb.chat.postMessage({ text: message, channel: validator["slack_channel"] }));
+                } else {
+                  var message = `${validator["name"]} is still absent from the next set of validators 💩`;
+                }
+                console.log(message);
             }
           };
         })();
