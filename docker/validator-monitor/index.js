@@ -67,6 +67,10 @@ async function main () {
                 } else {
                   var message = `${validator["name"]} is still absent from the next set of validators 💩`;
                 }
+                const index = array.indexOf(validator["stash_account_address"]);
+                if (index > -1) {
+                      validator["stash_account_address"].splice(index, 1);
+                }
                 console.log(message);
             }
           };

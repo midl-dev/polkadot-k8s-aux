@@ -29,8 +29,8 @@ EOY
   rm cloudbuild.yaml
 }
 export -f build_container
-#find ${path.module}/../docker -mindepth 1 -maxdepth 1 -type d -exec bash -c 'build_container "$0"' {} \; -printf '%f\n'
-build_container ${path.module}/../docker/validator-monitor
+find ${path.module}/../docker -mindepth 1 -maxdepth 1 -type d -exec bash -c 'build_container "$0"' {} \; -printf '%f\n'
+#build_container ${path.module}/../docker/validator-monitor
 EOF
   }
 }
