@@ -1,0 +1,14 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: polkadot-node
+spec:
+  volumeClaimTemplates:
+  - metadata:
+      name: polkadot-node-pv-claim
+    spec:
+      storageClassName: ${kubernetes_name_prefix}-local-ssd
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 10Gi

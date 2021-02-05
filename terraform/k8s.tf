@@ -52,19 +52,6 @@ resource "kubernetes_secret" "polkadot_payout_account_mnemonic" {
   depends_on = [ null_resource.push_containers, kubernetes_namespace.polkadot_namespace ]
 }
 
-# FIXME this is a bug in kustomize where it will not prepend characters to the storageClass requirement
-# to address it, we define it here. At some point, later, it will stop being needed.
-resource "kubernetes_storage_class" "local-ssd" {
-  count = var.kubernetes_name_prefix == "dot" ? 1  : 0
-  metadata {
-    name = "local-ssd"
-  }
-  storage_provisioner = "kubernetes.io/gce-pd"
-  parameters = {
-    type = "pd-ssd"
-  }
-}
-
 resource "null_resource" "apply" {
   provisioner "local-exec" {
 
@@ -105,6 +92,10 @@ EOP
 cat <<EOP > polkadot-node/validator-monitor-patch.yaml
 ${templatefile("${path.module}/../k8s/polkadot-node-tmpl/validator-monitor-patch.yaml.tmpl",
      { "kubernetes_pool_name" : var.kubernetes_pool_name })}
+EOP
+cat <<EOP > polkadot-node/prefixedpvnode.yaml
+${templatefile("${path.module}/../k8s/polkadot-node-tmpl/prefixedpvnode.yaml.tmpl",
+     { "kubernetes_name_prefix" : var.kubernetes_name_prefix })}
 EOP
 %{ for validator in var.polkadot_validators }
 mkdir -p payout-cron-${validator.name}
