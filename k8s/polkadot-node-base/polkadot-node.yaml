@@ -76,6 +76,7 @@ spec:
             configMapKeyRef:
               name: polkadot-configmap
               key: ARCHIVE_URL
+        imagePullPolicy: Always
   volumeClaimTemplates:
   - metadata:
       name: polkadot-node-pv-claim
