@@ -71,6 +71,11 @@ spec:
         - name: polkadot-node-pv-claim
           mountPath: /polkadot
         env:
+        - name: CHAIN
+          valueFrom:
+            configMapKeyRef:
+              name: polkadot-configmap
+              key: CHAIN
         - name: ARCHIVE_URL
           valueFrom:
             configMapKeyRef:
