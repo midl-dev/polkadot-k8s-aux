@@ -43,38 +43,46 @@ async function main () {
       const { event, phase } = record;
       const types = event.typeDef;
 
+      if (event.section == "electionsPhragmen") {
+          console.log(`Event of type ${event.method} received`);
+          console.log(`Event data: ${event.data}`);
+      }
       if (event.section == "staking" && event.method == "StakingElection") {
         (async() => {
           var queuedKeys = await api.query.session.queuedKeys();
-          var electedValidators = queuedKeys.map(x => x[0].toHuman());
-          console.log(`Staking election has happened.`);
-          for (const validator of polkadotValidators) {
-            if (electedValidators.includes(validator["stash_account_address"])) {
-                if (!(activeValidators.includes(validator["stash_account_address"]))) {
-                  var message = `${validator["name"]} was added to the next set of validators 🎉🎉`;
-                  activeValidators.push(validator["stash_account_address"]);
-                  const slackWeb = new WebClient(validator["slack_token"]);
-                  const res = (await slackWeb.chat.postMessage({ text: message, channel: validator["slack_channel"] }));
-                } else {
-                  var message = `${validator["name"]} is still present in the next set of validators 🎉`;
-                }
-                console.log(message);
-            } else {
-                if (activeValidators.includes(validator["stash_account_address"])) {
-                  var message = `${validator["name"]} was removed from the next set of validators 💩💩`;
-                  const slackWeb = new WebClient(validator["slack_token"]);
-                  const res = (await slackWeb.chat.postMessage({ text: message, channel: validator["slack_channel"] }));
-                } else {
-                  var message = `${validator["name"]} is still absent from the next set of validators 💩`;
-                }
-                const index = array.indexOf(validator["stash_account_address"]);
-                if (index > -1) {
-                      validator["stash_account_address"].splice(index, 1);
-                }
-                console.log(message);
-            }
-          };
         })();
+        var electedValidators = queuedKeys.map(x => x[0].toHuman());
+        console.log(`Staking election has happened.`);
+        for (const validator of polkadotValidators) {
+          if (electedValidators.includes(validator["stash_account_address"])) {
+              if (!(activeValidators.includes(validator["stash_account_address"]))) {
+                var message = `${validator["name"]} was added to the next set of validators 🎉🎉`;
+                activeValidators.push(validator["stash_account_address"]);
+                (async() => {
+                  const slackWeb = new WebClient(validator["slack_token"]);
+                  const res = (await slackWeb.chat.postMessage({ text: message, channel: validator["slack_channel"] }));
+                })();
+              } else {
+                var message = `${validator["name"]} is still present in the next set of validators 🎉`;
+              }
+              console.log(message);
+          } else {
+              if (activeValidators.includes(validator["stash_account_address"])) {
+                var message = `${validator["name"]} was removed from the next set of validators 💩💩`;
+                (async() => {
+                  const slackWeb = new WebClient(validator["slack_token"]);
+                  const res = (await slackWeb.chat.postMessage({ text: message, channel: validator["slack_channel"] }));
+                })();
+              } else {
+                var message = `${validator["name"]} is still absent from the next set of validators 💩`;
+              }
+              const index = array.indexOf(validator["stash_account_address"]);
+              if (index > -1) {
+                    validator["stash_account_address"].splice(index, 1);
+              }
+              console.log(message);
+          }
+        };
       } else if (event.section == "staking" && event.method == "Slash") {
         console.log(`raw data ${event.data}`);
         console.log(`Validator ${event.data.validator} has been slashed by amount ${event.data.amount}`);
