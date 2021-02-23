@@ -24,10 +24,10 @@ variable "polkadot_version" {
   description = "Version of the polkadot containers to use"
 }
 
-variable "payout_account_mnemonic" {
-  type = string
-  description = "The secret key for the payout accout mnemonic"
-  default = ""
+variable "payout_accounts" {
+  type = map
+  description = "A map of payout account mnemonics, in format 'account_alias': 'key'"
+  default = {}
 }
 
 variable "project" {

@@ -10,3 +10,11 @@ spec:
         spec:
           nodeSelector:
             cloud.google.com/gke-nodepool: ${kubernetes_pool_name}
+          containers:
+          - name: payout-cron
+            env:
+            - name: PAYOUT_ACCOUNT_MNEMONIC
+              valueFrom:
+                secretKeyRef:
+                  name: polkadot-payout-account-mnemonic
+                  key: ${validator.payout_account_alias}

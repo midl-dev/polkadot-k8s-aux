@@ -46,9 +46,7 @@ resource "kubernetes_secret" "polkadot_payout_account_mnemonic" {
     name = "polkadot-payout-account-mnemonic"
     namespace = var.kubernetes_namespace
   }
-  data = {
-    "payout-account-mnemonic" = var.payout_account_mnemonic
-  }
+  data = var.payout_accounts
   depends_on = [ null_resource.push_containers, kubernetes_namespace.polkadot_namespace ]
 }
 
