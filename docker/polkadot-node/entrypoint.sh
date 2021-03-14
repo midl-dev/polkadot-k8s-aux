@@ -8,6 +8,7 @@ if [ ! -z "$CHAIN" ]; then
 fi
 
 eval /usr/bin/polkadot --wasm-execution Compiled \
+         --out-peers=10 \
          --unsafe-ws-external \
          --unsafe-rpc-external \
          --rpc-methods=Unsafe \

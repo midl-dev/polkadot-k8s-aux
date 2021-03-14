@@ -88,6 +88,3 @@ spec:
     spec:
       accessModes: [ "ReadWriteOnce" ]
       storageClassName: local-ssd
-      resources:
-        requests:
-          storage: 10Gi
