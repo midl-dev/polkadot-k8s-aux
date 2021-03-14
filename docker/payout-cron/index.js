@@ -1,16 +1,45 @@
 /* A simple one-shot payout script for Polkadot
- * Copyright 2020 MIDL.dev
+ * Copyright 2021 MIDL.dev
  *
  * This script requires a payout account with dust money to pay for transaction fees to call the payout extrinsic.
  *
- * All inputs come from environment variables.
+ *  ########################################################
+ *  ##                                                    ##
+ *  ##  Want a simpler solution ?                         ##
+ *  ##                                                    ##
+ *  ##    https://MIDL.dev/polkadot-automated-payouts     ##
+ *  ##                                                    ##
+ *  ##  Kusama automated payouts for US$9.99 / month      ##
+ *  ##  Polkadot automated payouts for US$19.99 / month   ##
+ *  ##                                                    ##
+ *  ########################################################
+ *
+ * All inputs come from environment variables:
+ * 
+ *  * NODE_ENDPOINT : the polkadot/kusama node rpc (localhost)
+ *  * PAYOUT_ACOUNT_MNEMONIC: 12 words of the payout account (should have little balance, just for fees)
+ *  * STASH_ACCOUNT_ADDRESS: the address of the validator's stash
  *
  * The script queries the current era. It then verifies that:
  *
  *  * the previous era has not been paid yet
  *  * the validator was active in the previous era
  *
- *  When these conditions are met, it sends the payout extrinsic and exits. */
+ *  When these conditions are met, it sends the payout extrinsic and exits.
+ *
+ *  This script does not:
+ *   * support multiple validators. To support multiple validator, run several cronjobs.
+ *   * support older eras than the one before the current one. This script should run often.
+ *
+ *  To run once:
+ *    export NODE_ENDPOINT=localhost
+ *    export PAYOUT_ACCOUNT_MNEMONIC="your twelve key words..."
+ *    export STASH_ACCOUNT_ADDRESS="GyrcqNwF87LFc4BRxhxakq8GZRVNzhGn3NLfSQhVHQxqYYx"
+ *    node index.js
+ *
+ *  To run continously, put the following script in a cronjob.
+ *  See for reference: https://opensource.com/article/17/11/how-use-cron-linux
+ * */
 
 // Import the API
 const { ApiPromise, WsProvider } = require('@polkadot/api');
