@@ -27,6 +27,9 @@
  *
  *  When these conditions are met, it sends the payout extrinsic and exits.
  *
+ *  If payout extrinsic fails, it will post an error to the console and to Slack
+ *  if the SLACK_ALERT_TOKEN and SLACK_ALERT_CHANNEL env vars are set.
+ *
  *  This script does not:
  *   * support multiple validators. To support multiple validator, run several cronjobs.
  *   * support older eras than the one before the current one. This script should run often.
@@ -44,6 +47,7 @@
 // Import the API
 const { ApiPromise, WsProvider } = require('@polkadot/api');
 const { Keyring } = require('@polkadot/keyring');
+const { WebClient, WebAPICallResult } = require('@slack/web-api');
 
 async function main () {
   const provider = new WsProvider(`ws://${process.env.NODE_ENDPOINT}:9944`);
@@ -81,23 +85,35 @@ async function main () {
   console.log(`Issuing payoutStakers extrinsic from address ${payoutKey.address} for validator stash ${stash_account} for era ${currentEra - 1}`);
 
   // Create, sign and send the payoutStakers extrinsic
-  var unsub = await api.tx.staking.payoutStakers(stash_account, currentEra - 1).signAndSend(payoutKey, ({ events = [], status }) => {
-    console.log('Transaction status:', status.type);
+  try {
+    var unsub = await api.tx.staking.payoutStakers(stash_account, currentEra - 1).signAndSend(payoutKey, ({ events = [], status }) => {
+      console.log('Transaction status:', status.type);
 
-    if (status.isInBlock) {
-      console.log('Included at block hash', status.asInBlock.toHex());
-      console.log('Events:');
+      if (status.isInBlock) {
+        console.log('Included at block hash', status.asInBlock.toHex());
+        console.log('Events:');
 
-      events.forEach(({ event: { data, method, section }, phase }) => {
-        console.log('\t', phase.toString(), `: ${section}.${method}`, data.toString());
-      });
-    } else if (status.isFinalized) {
-      console.log('Finalized block hash', status.asFinalized.toHex());
-    } else if (status.isError) {
-      console.error('Errored out in block hash', status.asFinalized.toHex());
-      process.exit(1);
+        events.forEach(({ event: { data, method, section }, phase }) => {
+          console.log('\t', phase.toString(), `: ${section}.${method}`, data.toString());
+        });
+      } else if (status.isFinalized) {
+        console.log('Finalized block hash', status.asFinalized.toHex());
+      } else if (status.isError) {
+        console.error('Errored out in block hash', status.asFinalized.toHex());
+        process.exit(1);
+      }
+    });
+  }
+  catch(e) {
+    var message = `Payout extrinsic failed for validator ${stash_account} with error ${e.message}.`;
+    if(process.env.SLACK_ALERT_TOKEN) {
+      const slackWeb = new WebClient(process.env.SLACK_ALERT_TOKEN);
+      const res = (await slackWeb.chat.postMessage({ text: message, channel: process.env.SLACK_ALERT_CHANNEL }));
     }
-  });
+    console.error(message);
+    console.log(e);
+    process.exit(1);
+  }
   console.log("Exiting");
   process.exit(0);
 }
