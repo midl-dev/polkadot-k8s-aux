@@ -38,6 +38,7 @@
  *    export NODE_ENDPOINT=localhost
  *    export PAYOUT_ACCOUNT_MNEMONIC="your twelve key words..."
  *    export STASH_ACCOUNT_ADDRESS="GyrcqNwF87LFc4BRxhxakq8GZRVNzhGn3NLfSQhVHQxqYYx"
+ *    export STASH_ACCOUNT_ALIAS="my awesome validator"
  *    node index.js
  *
  *  To run continously, put the following script in a cronjob.
@@ -66,6 +67,7 @@ async function main () {
 
 
   const stash_account = process.env.STASH_ACCOUNT_ADDRESS;
+  const stash_alias = process.env.STASH_ACCOUNT_ALIAS; //optional
   var controller_address = await api.query.staking.bonded(stash_account);
   var controller_ledger = await api.query.staking.ledger(controller_address.toString());
   claimed_eras = controller_ledger.toHuman().claimedRewards.map(x => parseInt(x.replace(',','')));
@@ -82,7 +84,7 @@ async function main () {
     process.exit(0);
   }
 
-  console.log(`Issuing payoutStakers extrinsic from address ${payoutKey.address} for validator stash ${stash_account} for era ${currentEra - 1}`);
+  console.log(`Issuing payoutStakers extrinsic from address ${payoutKey.address} for validator stash ${stash_alias} (${stash_account}) for era ${currentEra - 1}`);
 
   // Create, sign and send the payoutStakers extrinsic
   try {
@@ -99,13 +101,18 @@ async function main () {
       } else if (status.isFinalized) {
         console.log('Finalized block hash', status.asFinalized.toHex());
       } else if (status.isError) {
-        console.error('Errored out in block hash', status.asFinalized.toHex());
+        var message = `Payout extrinsic was succesfully finalized on-chain but failed for validator ${stash_alias} (${stash_account}) with error ${status.asFinalized.toHex()}.`;
+        if(process.env.SLACK_ALERT_TOKEN) {
+          const slackWeb = new WebClient(process.env.SLACK_ALERT_TOKEN);
+          slackWeb.chat.postMessage({ text: message, channel: process.env.SLACK_ALERT_CHANNEL });
+        }
+        console.error(message);
         process.exit(1);
       }
     });
   }
   catch(e) {
-    var message = `Payout extrinsic failed for validator ${stash_account} with error ${e.message}.`;
+    var message = `Payout extrinsic failed on-chain submission for validator ${stash_alias} (${stash_account}) with error ${e.message}.`;
     if(process.env.SLACK_ALERT_TOKEN) {
       const slackWeb = new WebClient(process.env.SLACK_ALERT_TOKEN);
       const res = (await slackWeb.chat.postMessage({ text: message, channel: process.env.SLACK_ALERT_CHANNEL }));

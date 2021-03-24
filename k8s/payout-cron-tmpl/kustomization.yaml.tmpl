@@ -12,6 +12,7 @@ configMapGenerator:
 - name: polkadot-payout-cron
   literals:
       - STASH_ACCOUNT_ADDRESS="${validator.stash_account_address}"
+      - STASH_ACCOUNT_ALIAS="${validator.name}"
       - NODE_ENDPOINT="${kubernetes_name_prefix}-polkadot-node-0.${kubernetes_name_prefix}-polkadot-node"
 
 patchesStrategicMerge:
