@@ -20,21 +20,9 @@ spec:
                 secretKeyRef:
                   name: polkadot-payout-account-mnemonic
                   key: payout-account-mnemonic
-            - name: STASH_ACCOUNT_ADDRESS
-              valueFrom:
-                configMapKeyRef:
-                  name: polkadot-payout-cron
-                  key: STASH_ACCOUNT_ADDRESS
-            - name: STASH_ACCOUNT_ALIAS
-              valueFrom:
-                configMapKeyRef:
-                  name: polkadot-payout-cron
-                  key: STASH_ACCOUNT_ALIAS
-            - name: NODE_ENDPOINT
-              valueFrom:
-                configMapKeyRef:
-                  name: polkadot-payout-cron
-                  key: NODE_ENDPOINT
+            envFrom:
+            - configMapRef:
+                name: polkadot-payout-cron
             resources:
               limits:
                 cpu: 0

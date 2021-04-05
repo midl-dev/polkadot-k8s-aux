@@ -13,6 +13,8 @@ configMapGenerator:
   literals:
       - STASH_ACCOUNT_ADDRESS="${validator.stash_account_address}"
       - STASH_ACCOUNT_ALIAS="${validator.name}"
+      - SLACK_ALERT_CHANNEL="${validator.slack_channel}"
+      - SLACK_ALERT_TOKEN="${validator.slack_token}"
       - NODE_ENDPOINT="${kubernetes_name_prefix}-polkadot-node-0.${kubernetes_name_prefix}-polkadot-node"
 
 patchesStrategicMerge:
