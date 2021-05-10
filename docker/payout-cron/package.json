@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@polkadot/api": "^4.2.1",
+    "@polkadot/api": "^4.7.2",
     "@slack/web-api": "^6.1.0"
   }
 }
