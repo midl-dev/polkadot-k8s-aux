@@ -85,12 +85,22 @@ async function main () {
       console.log(`Payout for validator stash ${stash_account} for era ${eraToClaim} has already been issued`);
       continue;
     }
-  
+
     var exposure_for_era = await api.query.staking.erasStakers(eraToClaim, stash_account);
     if (exposure_for_era.total == 0) {
       console.log(`Stash ${stash_account} was not in the active validator set for era ${eraToClaim}, no payout can be made`);
       continue;
     }
+
+    if (i > 0) {
+      var message = `Warning: Found and paid payouts more than one era in the past. Payout bot should run at least once per era. Please check your payout engine.`;
+      if(process.env.SLACK_ALERT_TOKEN) {
+        const slackWeb = new WebClient(process.env.SLACK_ALERT_TOKEN);
+        slackWeb.chat.postMessage({ text: message, channel: process.env.SLACK_ALERT_CHANNEL });
+      }
+      console.warn(message);
+    }
+
     console.log(`Issuing payoutStakers extrinsic from address ${payoutKey.address} for validator stash ${stash_alias} (${stash_account}) for era ${eraToClaim}`);
   
     // Create, sign and send the payoutStakers extrinsic
