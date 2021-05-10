@@ -96,7 +96,7 @@ async function main () {
       var message = `Warning: Found and paid payouts more than one era in the past. Payout bot should run at least once per era. Please check your payout engine.`;
       if(process.env.SLACK_ALERT_TOKEN) {
         const slackWeb = new WebClient(process.env.SLACK_ALERT_TOKEN);
-        slackWeb.chat.postMessage({ text: message, channel: process.env.SLACK_ALERT_CHANNEL });
+        const res = await slackWeb.chat.postMessage({ text: message, channel: process.env.SLACK_ALERT_CHANNEL });
       }
       console.warn(message);
     }
@@ -121,7 +121,7 @@ async function main () {
           var message = `Payout extrinsic was succesfully finalized on-chain but failed for validator ${stash_alias} (${stash_account}) with error ${status.asFinalized.toHex()}.`;
           if(process.env.SLACK_ALERT_TOKEN) {
             const slackWeb = new WebClient(process.env.SLACK_ALERT_TOKEN);
-            slackWeb.chat.postMessage({ text: message, channel: process.env.SLACK_ALERT_CHANNEL });
+            const res = slackWeb.chat.postMessage({ text: message, channel: process.env.SLACK_ALERT_CHANNEL });
           }
           console.error(message);
           process.exit(1);
