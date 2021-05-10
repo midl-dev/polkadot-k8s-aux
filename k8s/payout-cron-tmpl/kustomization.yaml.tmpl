@@ -16,6 +16,7 @@ configMapGenerator:
       - SLACK_ALERT_CHANNEL="${validator.slack_channel}"
       - SLACK_ALERT_TOKEN="${validator.slack_token}"
       - NODE_ENDPOINT="${kubernetes_name_prefix}-polkadot-node-0.${kubernetes_name_prefix}-polkadot-node"
+      - NUM_PAST_ERAS="${validator.num_past_eras}"
 
 patchesStrategicMerge:
 - payout-cron-patch.yaml
