@@ -61,7 +61,7 @@ gcloud container clusters get-credentials "${module.terraform-gke-blockchain.nam
 rm -rvf ${path.module}/k8s-${var.kubernetes_namespace}
 mkdir -p ${path.module}/k8s-${var.kubernetes_namespace}
 cp -rv ${path.module}/../k8s/*base* ${path.module}/k8s-${var.kubernetes_namespace}
-pushd ${path.module}/k8s-${var.kubernetes_namespace}
+cd ${path.module}/k8s-${var.kubernetes_namespace}
 cat <<EOK > kustomization.yaml
 ${templatefile("${path.module}/../k8s/kustomization.yaml.tmpl",
      { "project" : module.terraform-gke-blockchain.project,
@@ -112,8 +112,6 @@ ${templatefile("${path.module}/../k8s/payout-cron-tmpl/kustomization.yaml.tmpl",
 EOK
 %{ endfor }
 kubectl apply -k .
-popd
-#rm -rvf ${path.module}/k8s-${var.kubernetes_namespace}
 EOF
 
   }
